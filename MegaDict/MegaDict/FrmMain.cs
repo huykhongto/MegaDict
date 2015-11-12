@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +16,14 @@ namespace MegaDict
 {
     public partial class FrmMain : Form
     {
+
+        #region -VAR-
+
         public int CURRENT_VIEW_ID { get; set; }
+
+        #endregion
+
+        #region -FORM-
 
         public FrmMain()
         {
@@ -33,12 +41,24 @@ namespace MegaDict
             lsbLatedViews.ValueMember = "ID";
             lsbMostViews.DisplayMember = "Key";
             lsbMostViews.ValueMember = "ID";
+
+            txtSearchKey.Focus();
         }
+
+        private void FrmMain_Activated(object sender, EventArgs e)
+        {
+            cmbCategory.DataSource = CategoryAccess.Read_AddEmptyRow();
+        }
+
+        #endregion
+
+        #region -BUTTON EVENTS-
 
         private void btnAddNew_Click(object sender, EventArgs e)
         {
             txtView.Text = string.Empty;
             txtKey.Text = string.Empty;
+            txtFilePath.Text = string.Empty;
             CURRENT_VIEW_ID = 0;
             AllowModify(true);
         }
@@ -56,11 +76,19 @@ namespace MegaDict
                 Dictionary dict = new Dictionary();
                 dict.ID = CURRENT_VIEW_ID;
                 dict.KEY = txtKey.Text;
-                dict.KEY_ALT = ConvertToAscii(dict.KEY);
+                dict.KEY_ALT = MegaDict.Utility.App.ConvertToAscii(dict.KEY);
                 dict.CONTENT = txtView.Text;
-                dict.CONTENT_ALT = ConvertToAscii(dict.CONTENT);
+                dict.CONTENT_ALT = MegaDict.Utility.App.ConvertToAscii(dict.CONTENT);
+                dict.ATTACH_FILE_PATH =  CopyFileToData(txtFilePath.Text);
+                
                 if (DictionaryAccess.Update(dict))
+                {
+                    //copy file to data folder
+                    if(!string.IsNullOrEmpty(txtFilePath.Text))
+                       
                     AllowModify(false);
+                }
+                    
                 else
                     MessageBox.Show("Insert error.");
             }
@@ -72,9 +100,10 @@ namespace MegaDict
                     Dictionary dict = new Dictionary();
                     dict.CATEGORY_ID = dlg.CategoryID;
                     dict.KEY = txtKey.Text;
-                    dict.KEY_ALT = ConvertToAscii(dict.KEY);
+                    dict.KEY_ALT = MegaDict.Utility.App.ConvertToAscii(dict.KEY);
                     dict.CONTENT = txtView.Text;
-                    dict.CONTENT_ALT = ConvertToAscii(dict.CONTENT);
+                    dict.CONTENT_ALT = MegaDict.Utility.App.ConvertToAscii(dict.CONTENT);
+                    dict.ATTACH_FILE_PATH = CopyFileToData(txtFilePath.Text);
                     if (DictionaryAccess.Insert(dict)){
                         MessageBox.Show("Save succeed.");
                         //txtView.Text = txtKey.Text = string.Empty;
@@ -89,69 +118,12 @@ namespace MegaDict
             AllowModify(false);
         }
 
-        private void AllowModify(bool isAllow)
-        {
-            txtKey.ReadOnly = !isAllow;
-            txtView.ReadOnly = !isAllow;
-        }
-
-        private string ConvertToAscii(string unicodeString)
-        {
-            List<string[]> listCharactors = new List<string[]>();
-            string[] strA = {"a", "á", "à", "ả", "ã", "ạ", "ă", "ắ", "ằ", "ẳ", "ẵ", "ặ", "â", "ấ", "ầ", "ẩ", "ẫ", "ậ" };
-            string[] strE = { "e", "é", "è", "ẻ", "ẽ", "ẹ", "ê", "ế", "ề", "ể", "ễ", "ệ" };
-            string[] strI = { "i", "í", "ì", "ỉ", "ĩ", "ị" };
-            string[] strO = { "o", "ó", "ò", "ỏ", "õ", "ọ", "ô", "ố", "ồ", "ổ", "ỗ","ộ", "ơ", "ớ", "ờ","ở","ỡ","ợ" };
-            string[] strU = { "u", "ú", "ù", "ủ", "ũ", "ụ", "ư", "ứ", "ừ", "ử", "ữ", "ự" };
-
-            string[] strY = { "y", "ý", "ỳ", "ỷ", "ỹ", "ỵ" };
-            string[] strD = { "d", "đ" };
-
-            listCharactors.Add(strA);
-            listCharactors.Add(strE);
-            listCharactors.Add(strI);
-            listCharactors.Add(strO);
-            listCharactors.Add(strU);
-            listCharactors.Add(strY);
-            listCharactors.Add(strD);
-
-            foreach (string[] arr in listCharactors)
-            {
-                for (int i = 1; i < arr.Length; i++)
-                {
-                    unicodeString = unicodeString.Replace(arr[i], arr[0]);
-                }
-            }
-
-            return unicodeString.ToLower();
-        }
-
         private void btnSearch_Click(object sender, EventArgs e)
         {
-            
-            lsbResult.DataSource = DictionaryAccess.Search(ConvertToAscii(txtSearchKey.Text), cmbCategory.SelectedValue.ToString());
-            
-        }
-
-        private void lsbResult_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            ListBox listBox = sender as ListBox;
-            if (listBox.SelectedValue != null)
-            {
-                DataTable dt = (listBox.DataSource as DataTable);
-                txtKey.Text = dt.Rows[listBox.SelectedIndex]["KEY"].ToString();
-                txtView.Text = dt.Rows[listBox.SelectedIndex]["CONTENT"].ToString();
-                CURRENT_VIEW_ID = int.Parse(listBox.SelectedValue.ToString());
-                AllowModify(false);
-
-                //update view
-                DictionaryAccess.UpdateView(CURRENT_VIEW_ID);
-
-
-                lsbLatedViews.DataSource = DictionaryAccess.GetLastedViews();
-                lsbMostViews.DataSource = DictionaryAccess.GetMostViews();
-            }
-
+            var data = DictionaryAccess.Search(MegaDict.Utility.App.ConvertToAscii(txtSearchKey.Text), cmbCategory.SelectedValue.ToString());
+            lsbResult.DataSource = data;
+            if(data.Rows.Count > 0)
+                groupBox1.Text = string.Format("Search result (total: {0})",data.Rows.Count);
         }
 
         private void btnEdit_Click(object sender, EventArgs e)
@@ -165,11 +137,84 @@ namespace MegaDict
             dlg.ShowDialog();
         }
 
-        private void FrmMain_Activated(object sender, EventArgs e)
+        private void btnImport_Click(object sender, EventArgs e)
         {
-            cmbCategory.DataSource = CategoryAccess.Read_AddEmptyRow();
+            ImportData dlg = new ImportData();
+            dlg.ShowDialog();
         }
 
-        
+        private void btnBrowse_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+            if(dlg.ShowDialog() == DialogResult.OK)
+            {
+                txtFilePath.Text = dlg.FileName;
+            }
+        }
+
+        private void btnOpen_Click(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(txtFilePath.Text))
+            {
+                if (File.Exists(txtFilePath.Text))
+                {
+                    FileInfo file = new FileInfo(txtFilePath.Text);
+                    System.Diagnostics.Process.Start(file.FullName);
+                }
+            }
+        }
+
+        #endregion
+
+        #region -OTHER EVENTS-
+        private void lsbResult_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ListBox listBox = sender as ListBox;
+            if (listBox.SelectedValue != null)
+            {
+                DataTable dt = (listBox.DataSource as DataTable);
+                txtKey.Text = dt.Rows[listBox.SelectedIndex]["KEY"].ToString();
+                txtView.Text = dt.Rows[listBox.SelectedIndex]["CONTENT"].ToString();
+                CURRENT_VIEW_ID = int.Parse(listBox.SelectedValue.ToString());
+                txtFilePath.Text = dt.Rows[listBox.SelectedIndex]["ATTACH_FILE_PATH"].ToString();
+                AllowModify(false);
+
+                //update view
+                DictionaryAccess.UpdateView(CURRENT_VIEW_ID);
+
+
+                lsbLatedViews.DataSource = DictionaryAccess.GetLastedViews();
+                lsbMostViews.DataSource = DictionaryAccess.GetMostViews();
+            }
+
+        }
+
+        private void txtSearchKey_KeyDown(object sender, KeyEventArgs e)
+        {
+            //MessageBox.Show(e.KeyCode.ToString());
+            //lsbResult.DataSource = DictionaryAccess.Search(MegaDict.Utility.App.ConvertToAscii(txtSearchKey.Text), cmbCategory.SelectedValue.ToString());
+        }
+        #endregion
+
+        #region -METHODO-
+        private string CopyFileToData(string newFilePath)
+        {
+            string folderName = "Data//Files";
+            if (!Directory.Exists(folderName))
+                Directory.CreateDirectory(folderName);
+
+            FileInfo file = new FileInfo(newFilePath);
+            string desFilePath = folderName + "//" + DateTime.Now.ToString("yyyyMMdd_HHmmss_") + file.Name;
+            File.Copy(newFilePath, desFilePath);
+            return desFilePath;
+        }
+
+        private void AllowModify(bool isAllow)
+        {
+            txtKey.ReadOnly = !isAllow;
+            txtView.ReadOnly = !isAllow;
+            btnBrowse.Enabled = isAllow;
+        }
+        #endregion
     }
 }

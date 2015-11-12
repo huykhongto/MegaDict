@@ -17,10 +17,11 @@ namespace MegaDict.DAL
             dic["KEY_ALT"] = dict.KEY_ALT;
             dic["CONTENT"] = dict.CONTENT;
             dic["CONTENT_ALT"] = dict.CONTENT_ALT;
+            dic["ATTACH_FILE_PATH"] = dict.ATTACH_FILE_PATH;
             return App.DB.Insert("Dictionary", dic)> 0;
         }
 
-        internal static object Search(string key="", string categoryid="0")
+        internal static DataTable Search(string key="", string categoryid="0")
         {
             string sql = string.Format("select * from dictionary where (key_alt like '%{0}%' or content_alt like '%{0}%') and (category_id = {1} or {1} = 0)", key, categoryid);
             return App.DB.Select(sql);
@@ -34,6 +35,7 @@ namespace MegaDict.DAL
             dic["KEY_ALT"] = dict.KEY_ALT;
             dic["CONTENT"] = dict.CONTENT;
             dic["CONTENT_ALT"] = dict.CONTENT_ALT;
+            dic["ATTACH_FILE_PATH"] = dict.ATTACH_FILE_PATH;
 
             cond["ID"] = dict.ID;
             return App.DB.Update("Dictionary", dic,cond) > 0;

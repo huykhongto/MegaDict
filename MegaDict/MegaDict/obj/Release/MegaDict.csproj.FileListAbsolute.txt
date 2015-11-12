@@ -1,0 +1,16 @@
+D:\PROJECTS\14.MegaDict\MegaDict\MegaDict\bin\Release\x64\SQLite.Interop.dll
+D:\PROJECTS\14.MegaDict\MegaDict\MegaDict\bin\Release\x86\SQLite.Interop.dll
+D:\PROJECTS\14.MegaDict\MegaDict\MegaDict\bin\Release\Data\MEGADICTDB.sqlite
+D:\PROJECTS\14.MegaDict\MegaDict\MegaDict\bin\Release\MegaDict.exe.config
+D:\PROJECTS\14.MegaDict\MegaDict\MegaDict\bin\Release\MegaDict.exe
+D:\PROJECTS\14.MegaDict\MegaDict\MegaDict\bin\Release\MegaDict.pdb
+D:\PROJECTS\14.MegaDict\MegaDict\MegaDict\bin\Release\System.Data.SQLite.dll
+D:\PROJECTS\14.MegaDict\MegaDict\MegaDict\bin\Release\System.Data.SQLite.xml
+D:\PROJECTS\14.MegaDict\MegaDict\MegaDict\obj\Release\MegaDict.Dialog.DlgCategory.resources
+D:\PROJECTS\14.MegaDict\MegaDict\MegaDict\obj\Release\MegaDict.Dialog.DlgCategorySelector.resources
+D:\PROJECTS\14.MegaDict\MegaDict\MegaDict\obj\Release\MegaDict.FrmMain.resources
+D:\PROJECTS\14.MegaDict\MegaDict\MegaDict\obj\Release\MegaDict.ImportData.resources
+D:\PROJECTS\14.MegaDict\MegaDict\MegaDict\obj\Release\MegaDict.Properties.Resources.resources
+D:\PROJECTS\14.MegaDict\MegaDict\MegaDict\obj\Release\MegaDict.csproj.GenerateResource.Cache
+D:\PROJECTS\14.MegaDict\MegaDict\MegaDict\obj\Release\MegaDict.exe
+D:\PROJECTS\14.MegaDict\MegaDict\MegaDict\obj\Release\MegaDict.pdb
